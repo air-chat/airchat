@@ -1,7 +1,9 @@
+// src/main.jsx (або src/index.jsx)
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom'; // Додано для роутингу
-import { AuthProvider } from './components/AuthProvider'; // Додано для автентифікації
+// 👇 ЗМІНЕНО: Імпортуємо HashRouter
+import { HashRouter } from 'react-router-dom';
+import { AuthProvider } from './components/AuthProvider';
 import './index.css';
 import App from './App.jsx';
 
@@ -10,13 +12,12 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
     createRoot(rootElement).render(
       <StrictMode>
-        {/* BrowserRouter забезпечує навігацію */}
-        <BrowserRouter>
-          {/* AuthProvider забезпечує контекст автентифікації для всього App */}
+        {/* 👇 ЗМІНЕНО: Використовуємо HashRouter */}
+        <HashRouter>
           <AuthProvider>
             <App />
           </AuthProvider>
-        </BrowserRouter>
+        </HashRouter> {/* 👈 ЗМІНЕНО */}
       </StrictMode>,
     );
 } else {

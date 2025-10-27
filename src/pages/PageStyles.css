@@ -1,0 +1,163 @@
+/* src/pages/PageStyles.css */
+
+.page-container {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 40px 20px;
+  max-width: 800px; /* Обмежуємо ширину контенту */
+  margin: 40px auto; /* Центруємо на сторінці і додаємо відступ зверху/знизу */
+  background-color: #ffffff; /* Білий фон для контейнера */
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+  box-sizing: border-box;
+}
+
+/* Стиль для центрування контенту (для сторінки успіху) */
+.centered-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 2em;
+  font-weight: bold;
+  color: #343a40;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.page-message {
+  font-size: 1.1em;
+  color: #495057;
+  line-height: 1.7;
+  margin-bottom: 30px;
+}
+
+/* --- Стилі для RegistrationSuccessPage --- */
+
+.success-icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+}
+
+.success-title {
+  color: #181fa8; /* Зелений колір */
+}
+
+/* --- Стилі для SupportPage --- */
+
+.support-title {
+  text-align: center;
+}
+
+.support-intro {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #6c757d;
+}
+
+.support-section {
+  display: flex;
+  align-items: flex-start; /* Вирівнювання по верху */
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+.support-section:last-of-type {
+  border-bottom: none; /* Прибираємо лінію в останнього */
+}
+
+.support-icon {
+  font-size: 2.5em;
+  color: #007bff; /* Синій колір для іконок */
+  flex-shrink: 0; /* Щоб іконка не стискалась */
+  width: 50px; /* Фіксована ширина для вирівнювання */
+  text-align: center;
+}
+
+.support-section-title {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #343a40;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.support-text {
+  font-size: 1em;
+  color: #6c757d;
+  margin-bottom: 10px;
+}
+
+.support-link {
+  font-size: 1.1em;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all; /* Перенос довгих email/посилань */
+}
+.support-link:hover {
+  text-decoration: underline;
+}
+
+/* --- Стилі для кнопок --- */
+
+.page-button {
+  display: inline-block;
+  padding: 12px 25px;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  cursor: pointer;
+  border: none;
+  margin-top: 20px; /* Відступ зверху */
+}
+
+.primary-button {
+  background-color: #007bff; /* Синій */
+  color: #ffffff;
+}
+.primary-button:hover {
+  background-color: #0056b3;
+}
+
+.secondary-button {
+  background-color: transparent;
+  color: #6c757d; /* Сірий */
+  border: 1px solid #ced4da; /* Сіра рамка */
+}
+.secondary-button:hover {
+  background-color: #f8f9fa; /* Дуже світло-сірий */
+  color: #495057;
+}
+
+.back-button {
+  margin-top: 40px; /* Більший відступ для кнопки Назад */
+}
+
+/* --- Адаптивність --- */
+@media (max-width: 600px) {
+  .page-container {
+    margin: 20px auto; /* Менші відступи на мобільних */
+    padding: 25px 15px;
+  }
+  .page-title {
+    font-size: 1.8em;
+  }
+  .page-message {
+    font-size: 1em;
+  }
+  .support-section {
+    flex-direction: column; /* Іконка над текстом на малих екранах */
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+  .support-icon {
+    margin-bottom: 10px;
+  }
+}

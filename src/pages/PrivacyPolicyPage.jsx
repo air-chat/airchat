@@ -12,6 +12,7 @@ const policyContainerStyles = {
   borderRadius: '8px',
   boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
   lineHeight: '1.6',
+  color: '#000000ff',
 };
 
 const PrivacyPolicyPage = () => {

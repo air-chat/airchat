@@ -23,7 +23,7 @@ import AdminIndividualChatPage from './pages/AdminIndividualChatPage';
 import LandingPage from './pages/LandingPage';
 import RegistrationSuccessPage from './pages/RegistrationSuccessPage'; // Сторінка успішної реєстрації
 import SupportPage from './pages/SupportPage'; // Сторінка підтримки
-
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 function App() {
   const { loading, session } = useAuth(); // Отримуємо стан завантаження та сесію
 
@@ -44,6 +44,8 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registration-success" element={<RegistrationSuccessPage />} />
       <Route path="/support" element={<SupportPage />} />
+
+    <Route path="/privacy" element={<PrivacyPolicyPage />} />
 
       {/* --- Захищені Маршрути для Чатів (поза Layout) --- */}
       {/* Ці маршрути вимагають входу в систему та ролі адміна, але не використовують бічну панель Layout */}

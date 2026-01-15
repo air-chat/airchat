@@ -1,239 +1,280 @@
-/* src/pages/LandingPage.css */
+/* --- Змінні для легкого налаштування --- */
+:root {
+  --primary-color: #2563eb; /* Сучасний синій */
+  --primary-dark: #1e40af;
+  --text-main: #1f2937;
+  --text-secondary: #4b5563;
+  --bg-light: #f3f4f6;
+  --white: #ffffff;
+  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --border-radius: 16px;
+}
 
-/* --- Загальні Стилі --- */
+/* --- Загальні --- */
 .landing-page-container {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  color: #343a40;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-main);
   line-height: 1.6;
-  margin: 0;
-  padding: 0;
-  background-color: #ffffff;
+  background-color: var(--white);
+  overflow-x: hidden; /* Запобігає горизонтальному скролу */
 }
 
-.hero-section,
-.features-section,
-.screenshots-section,
-.cta-section {
-  padding: 40px 20px;
-  box-sizing: border-box;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+/* --- Анімації появи --- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@media (min-width: 768px) {
-  .hero-section,
-  .features-section,
-  .screenshots-section,
-  .cta-section {
-    padding: 80px 40px; /* Збільшено відступи */
-  }
-}
+.fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.fade-in-delay-1 { animation: fadeInUp 0.8s ease-out 0.2s forwards; opacity: 0; }
+.fade-in-delay-2 { animation: fadeInUp 0.8s ease-out 0.4s forwards; opacity: 0; }
+.fade-in-delay-3 { animation: fadeInUp 0.8s ease-out 0.6s forwards; opacity: 0; }
 
-.section-title {
-  font-size: 1.8em;
-  font-weight: bold;
-  color: #343a40;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-@media (min-width: 768px) {
-  .section-title {
-    font-size: 2.4em; /* Збільшено розмір заголовків */
-    margin-bottom: 60px;
-  }
-}
-
-/* --- Секція Hero --- */
+/* --- HERO SECTION --- */
 .hero-section {
-  background-color: #f8f9fa;
+  position: relative;
+  padding: 80px 20px 60px;
   text-align: center;
-  border-bottom: 1px solid #e9ecef;
-  padding-top: 60px; /* Більший відступ зверху */
+  background: radial-gradient(circle at top center, #eff6ff 0%, #ffffff 70%);
+  overflow: hidden;
 }
 
-/* Стиль для логотипа */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .hero-logo {
-  max-width: 120px; /* Налаштуйте розмір */
+  width: 100px; /* Зменшив трохи для акуратності */
   height: auto;
-  margin: 0 auto 25px auto; /* Центрування та відступ знизу */
-  display: block;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
 }
 
 .app-name {
-  font-size: 2.5em;
-  font-weight: 700; /* Зроблено жирнішим */
-  color: #007bff;
-  margin: 0 0 15px 0; /* Збільшено відступ */
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; /* Градієнтний текст */
+  margin-bottom: 10px;
 }
 
 .tagline {
-  font-size: 1.3em; /* Збільшено */
-  color: #495057; /* Трохи темніший */
-  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 15px;
 }
 
 .description {
-  font-size: 1.1em; /* Збільшено */
-  color: #495057;
-  max-width: 700px; /* Збільшено ширину */
-  margin: 0 auto 40px auto; /* Збільшено відступ */
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 40px;
 }
 
-/* Контейнер для кнопок сторів */
+/* --- Buttons --- */
 .store-buttons {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 15px; /* Відстань між кнопками */
-  margin-top: 30px; /* Відступ зверху */
-  flex-wrap: wrap; /* Перенос на мобільних */
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .store-badge {
-  height: 50px; /* Фіксована висота для однакового вигляду */
-  width: auto;
-  transition: transform 0.2s ease;
-}
-.store-badge:hover {
-  transform: scale(1.05); /* Легке збільшення при наведенні */
+  height: 50px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 8px; /* Легке заокруглення для картинок, якщо вони без фону */
 }
 
-
-@media (min-width: 768px) {
-  .hero-logo { max-width: 150px; }
-  .app-name { font-size: 3.5em; }
-  .tagline { font-size: 1.6em; }
-  .description { font-size: 1.2em; }
-  .store-buttons { margin-top: 40px; }
-  .store-badge { height: 60px; }
+.store-link:hover .store-badge {
+  transform: scale(1.05) translateY(-2px);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
-/* --- Секція Функцій --- */
+/* --- FEATURES SECTION --- */
 .features-section {
+  padding: 80px 20px;
+  background-color: var(--white);
+}
+
+.section-title {
+  font-size: 2.25rem;
+  font-weight: 700;
   text-align: center;
-  background-color: #ffffff;
+  margin-bottom: 60px;
+  color: var(--text-main);
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 30px; /* Збільшено відстань */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1100px;
   margin: 0 auto;
-}
-
-@media (min-width: 600px) {
-  .features-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 992px) {
-  .features-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 .feature-item {
-  padding: 30px; /* Збільшено */
-  background-color: #ffffff;
-  border-radius: 12px; /* Більш заокруглені кути */
-  box-shadow: 0 5px 15px rgba(0,0,0,0.07); /* Покращена тінь */
-  border: 1px solid #e9ecef;
+  padding: 40px 30px;
+  background: var(--white);
+  border-radius: var(--border-radius);
+  /* Замість рамки - тінь */
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.03), var(--shadow-md); 
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease;
 }
+
 .feature-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.feature-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: #eff6ff; /* Світло-блакитне коло */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
 }
 
 .feature-icon {
-  font-size: 3em; /* Збільшено іконки */
-  margin-bottom: 20px;
-  display: block;
-  color: #007bff; /* Колір іконок */
+  font-size: 2.5rem;
 }
 
 .feature-title {
-  font-size: 1.3em;
-  font-weight: 600; /* Змінено жирність */
-  color: #343a40;
-  margin-top: 0;
-  margin-bottom: 15px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .feature-description {
-  font-size: 1em; /* Збільшено */
-  color: #6c757d;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
-/* --- Секція Скріншотів --- */
+/* --- SCREENSHOTS SECTION --- */
 .screenshots-section {
-  background-color: #f8f9fa;
+  padding: 80px 20px;
+  background-color: #f8fafc; /* Дуже світлий сірий */
   text-align: center;
+  overflow: hidden;
 }
 
-.screenshots-grid {
+.screenshots-container {
   display: flex;
   justify-content: center;
-  gap: 30px; /* Збільшено */
-  flex-wrap: wrap;
-  margin: 0 auto;
+  align-items: center;
+  gap: 40px;
+  padding-top: 20px;
+  flex-wrap: wrap; /* Для мобільних */
 }
 
 .screenshot-image {
+  max-width: 260px;
   width: 100%;
-  max-width: 280px;
-  height: auto;
-  border-radius: 16px; /* Більш заокруглені */
-  box-shadow: 0 8px 25px rgba(0,0,0,0.12); /* Покращена тінь */
-  border: 1px solid #dee2e6;
-  object-fit: contain;
-  background-color: #ffffff;
-  transition: transform 0.2s ease;
-}
-.screenshot-image:hover {
-    transform: scale(1.03);
+  border-radius: 30px; /* Радіус як у iPhone */
+  /* Ефект телефону: товста тінь і рамка */
+  box-shadow: 
+    0 0 0 8px #000000, /* Чорна рамка телефону */
+    0 20px 40px rgba(0,0,0,0.2); 
+  transition: transform 0.3s ease;
 }
 
-@media (min-width: 768px) {
-  .screenshot-image {
-     width: calc(33.333% - 20px); /* Адаптація під gap */
-     max-width: 320px; /* Трохи збільшено */
+/* Центральний скріншот трохи вище (на десктопі) */
+@media (min-width: 992px) {
+  .screenshot-wrapper.active {
+    transform: translateY(-20px) scale(1.05);
+    z-index: 2;
+  }
+  .screenshot-wrapper:not(.active) {
+    transform: scale(0.95);
+    opacity: 0.8;
   }
 }
 
-
-/* --- Секція Call to Action (Повтор) --- */
+/* --- CTA SECTION --- */
 .cta-section {
+  padding: 100px 20px;
+  background: var(--accent-gradient); /* Градієнтний фон */
   text-align: center;
-   background-color: #ffffff;
+  color: var(--white);
 }
 
-/* Додано стиль для тексту під кнопками */
-.login-prompt {
-    margin-top: 30px;
-    font-size: 1em;
-    color: #6c757d;
+.cta-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 15px;
 }
 
-.login-link {
-    color: #007bff;
-    font-weight: 600;
-    text-decoration: none;
-}
-.login-link:hover {
-    text-decoration: underline;
+.cta-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-
-/* --- Футер --- */
+/* --- FOOTER --- */
 .footer {
-  background-color: #343a40;
-  color: #adb5bd;
-  padding: 30px 20px; /* Збільшено */
-  text-align: center;
-  font-size: 0.9em;
-  margin-top: 60px; /* Збільшено відступ */
+  background-color: #111827; /* Майже чорний */
+  color: #9ca3af;
+  padding: 40px 20px;
+  font-size: 0.9rem;
 }
 
-.footer p {
-  margin: 0;
+.footer-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-link {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: var(--white);
+}
+
+/* --- MOBILE ADAPTATION --- */
+@media (max-width: 768px) {
+  .app-name { font-size: 2.5rem; }
+  .section-title { font-size: 1.8rem; }
+  .cta-title { font-size: 2rem; }
+  
+  .screenshots-container {
+    gap: 20px;
+  }
+  
+  .screenshot-image {
+    max-width: 220px;
+    box-shadow: 0 0 0 4px #000000, 0 10px 20px rgba(0,0,0,0.15); /* Менша рамка на мобільному */
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
 }

@@ -163,7 +163,7 @@ const TransfersListPage = () => {
                   <td style={styles.td}><span style={{...styles.status, ...getStatusStyle(transfer.status)}}>{transfer.status}</span></td>
                   <td style={styles.td}>{offersCount[transfer.id] || 0}</td>
                   <td style={styles.td}>
-                    <Link to={`/transfers/${transfer.id}`} style={styles.link}>Деталі</Link>
+                  <Link to={`/admin/transfers/${transfer.id}`} style={styles.link}>Деталі</Link>
                     {transfer.status === 'pending' && (offersCount[transfer.id] || 0) === 0 && (
                        <button onClick={() => handleAddAdminOffer(transfer.id)} style={styles.button}>
                          Додати Адм. Проп.

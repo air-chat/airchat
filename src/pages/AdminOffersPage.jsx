@@ -112,7 +112,7 @@ const AdminOffersPage = () => {
                                         <td style={styles.td}>{new Date(offer.transfer_datetime).toLocaleString('uk-UA', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</td>
                                         <td style={{...styles.td, fontWeight: 'bold'}}>{offer.price} {offer.currency}</td>
                                         <td style={styles.td}><span style={{...styles.status, ...statusInfo.style}}>{statusInfo.text}</span></td>
-                                        <td style={styles.td}><Link to={`/transfers/${offer.transfer_id}`} style={styles.link}>Деталі</Link></td>
+                                        <td style={styles.td}><Link to={`/admin/transfers/${offer.transfer_id}`} style={styles.link}>Деталі</Link></td>
                                     </tr>
                                 );
                             })

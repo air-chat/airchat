@@ -3,7 +3,6 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase } from '../services/supabaseClient';
 
-// --- ДОПОМІЖНІ КОМПОНЕНТИ ---
 const Avatar = ({ url, name, size = '40px' }) => {
   const style = { width: size, height: size, borderRadius: '50%', objectFit: 'cover', backgroundColor: '#4a5568', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#e2e8f0', fontWeight: 'bold', fontSize: `calc(${size} / 2.5)`, textTransform: 'uppercase', flexShrink: 0 };
   const displayName = name ? name.trim() : '';
@@ -17,27 +16,23 @@ const Icon = ({ path, color = 'currentColor' }) => (
   </svg>
 );
 
-// Іконки
 const icons = {
   transfers: "M8 7L3 12L8 17M16 7L21 12L16 17M3 12H21",
   offers: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h11a2 2 0 012 2v2",
   chats: "M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z",
   users: "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 3a4 4 0 110 8 4 4 0 010-8zM23 21v-2a4 4 0 00-3-3.87",
   notifications: "M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0",
-  // 👇 ДОДАНО: Іконка для скарг (прапор)
   reports: "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7",
   settings: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM12 15a3 3 0 100-6 3 3 0 000 6z",
   logout: "M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"
 };
 
-// --- ОСНОВНИЙ КОМПОНЕНТ ---
 const Layout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [adminProfile, setAdminProfile] = useState({ full_name: 'Адміністратор', avatar_url: null });
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [unreadChatsCount, setUnreadChatsCount] = useState(0);
-  // 👇 ДОДАНО: Стан для лічильника скарг
   const [unreadReportsCount, setUnreadReportsCount] = useState(0);
 
   useEffect(() => {
@@ -66,13 +61,11 @@ const Layout = () => {
       }
     };
 
-    // 👇 ДОДАНО: Функція для підрахунку скарг
     const fetchUnreadReportsCount = async () => {
       try {
-        // Простий запит для підрахунку кількості записів у 'reports'
         const { count, error } = await supabase
           .from('reports')
-          .select('*', { count: 'exact', head: true }); // head: true - не завантажує дані, лише лічильник
+          .select('*', { count: 'exact', head: true }); 
 
         if (error) throw error;
         setUnreadReportsCount(count || 0);
@@ -83,7 +76,7 @@ const Layout = () => {
 
     fetchAdminProfile();
     fetchUnreadCount();
-    fetchUnreadReportsCount(); // 👈 ДОДАНО: Виклик функції
+    fetchUnreadReportsCount(); 
 
     const chatChannel = supabase
         .channel('admin-layout-listener-chats')
@@ -93,24 +86,21 @@ const Layout = () => {
         })
         .subscribe();
 
-    // 👇 ДОДАНО: Real-time listener для нових скарг
     const reportsChannel = supabase
         .channel('admin-layout-listener-reports')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, (payload) => {
           console.log("Real-time: New report detected, refetching count...");
-          // Оновлюємо лічильник при новій скарзі
           setUnreadReportsCount((prevCount) => prevCount + 1); 
         })
         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'reports' }, (payload) => {
            console.log("Real-time: Report deleted, refetching count...");
-           // Або просто перезапитуємо
            fetchUnreadReportsCount();
         })
         .subscribe();
 
     return () => {
         supabase.removeChannel(chatChannel);
-        supabase.removeChannel(reportsChannel); // 👈 ДОДАНО: Відписка
+        supabase.removeChannel(reportsChannel); 
     };
   }, [user]);
 
@@ -135,28 +125,18 @@ const Layout = () => {
         </div>
 
         <nav style={styles.nav}>
-          {/* 👇 ЗМІНЕНО: шляхи оновлено на /admin/... */}
           <NavLink to="/admin/transfers" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.activeNavLink : {}) })}><Icon path={icons.transfers} /> Трансфери</NavLink>
           <NavLink to="/admin/my-offers" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.activeNavLink : {}) })}><Icon path={icons.offers} /> Мої пропозиції</NavLink>
-          
-          {/* ✅ ПРАВИЛЬНО: /chats залишається без /admin, оскільки це окремий маршрут */}
           <NavLink to="/chats" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.activeNavLink : {}) })}>
             <Icon path={icons.chats} /> Чати
             {unreadChatsCount > 0 && <span style={styles.badge}>{unreadChatsCount}</span>}
           </NavLink>
-
-          {/* 👇 ЗМІНЕНО: шляхи оновлено на /admin/... */}
           <NavLink to="/admin/users" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.activeNavLink : {}) })}><Icon path={icons.users} /> Користувачі</NavLink>
           <NavLink to="/admin/notifications" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.activeNavLink : {}) })}><Icon path={icons.notifications} /> Сповіщення</NavLink>
-          
-          {/* 👇 ДОДАНО: Посилання на сторінку скарг для модерації */}
           <NavLink to="/admin/reports" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.activeNavLink : {}) })}>
             <Icon path={icons.reports} /> Скарги
-            {/* Опціональний значок (badge) для нових скарг */}
             {unreadReportsCount > 0 && <span style={styles.badge}>{unreadReportsCount}</span>}
           </NavLink>
-          
-          {/* 👇 ЗМІНЕНО: шлях оновлено на /admin/... */}
           <NavLink to="/admin/settings" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.activeNavLink : {}) })}><Icon path={icons.settings} /> Налаштування</NavLink>
         </nav>
         
@@ -172,7 +152,6 @@ const Layout = () => {
   );
 };
 
-// --- СТИЛІ ---
 const styles = {
     layout: { display: 'flex', height: '100vh', fontFamily: 'system-ui, sans-serif' },
     sidebar: { width: '280px', backgroundColor: '#111827', color: '#d1d5db', display: 'flex', flexDirection: 'column', padding: '1.5rem', boxSizing: 'border-box' },
@@ -188,7 +167,6 @@ const styles = {
     badge: { marginLeft: 'auto', backgroundColor: '#dc3545', color: 'white', borderRadius: '10px', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' }
 };
 
-// Динамічне додавання стилів для :hover
 const styleSheet = document.createElement("style");
 styleSheet.innerText = `
   aside nav a:hover { 

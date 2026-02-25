@@ -236,7 +236,7 @@ const handleAdminSubmit = useCallback(async (offerData) => {
 
   return (
     <div style={styles.page}>
-      <Link to="/transfers" style={styles.backLink}>← Назад до списку</Link>
+      <Link to="/admin/transfers" style={styles.backLink}>← Назад до списку</Link>
       <div style={styles.pageHeader}>
         <h1 style={styles.header}>Трансфер #{transferId.substring(0, 8)}</h1>
         {/* Покращений бейдж статусу */}

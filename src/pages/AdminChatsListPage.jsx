@@ -85,7 +85,7 @@ const AdminChatsListPage = () => {
     return (
         <div style={styles.pageContainer}>
             <header style={styles.header}>
-                <button onClick={() => navigate(-1)} style={styles.backButton}>
+                <button onClick={() => navigate('/admin')} style={styles.backButton}>
                     <svg width="24" height="24" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </button>
                 <h1>Чати</h1>

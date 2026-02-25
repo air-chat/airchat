@@ -23,18 +23,20 @@ const AdminIndividualChatPage = () => {
     const [newMessage, setNewMessage] = useState('');
     const [otherUser, setOtherUser] = useState(null);
     const [isOnline, setIsOnline] = useState(false);
-    const [isUploading, setIsUploading] = useState(false); // Стан для завантаження файлу
+    const [isUploading, setIsUploading] = useState(false);
     const messagesEndRef = useRef(null);
-    const fileInputRef = useRef(null); // Посилання на інпут для файлів
+    const fileInputRef = useRef(null);
 
     useEffect(() => { moment.locale('uk'); }, []);
 
+    // ✅ ВИПРАВЛЕНО: Правильна структура useEffect
     useEffect(() => {
-        const markAsRead = async () => { /* ... */ };
-        
-        const fetchInitialData = async () => {
+        let messagesChannel = null;
+        let presenceChannel = null;
+
+        const setupChat = async () => {
             const { data: roomData } = await supabase.from('chat_rooms').select('participant1_id, participant2_id').eq('id', roomId).single();
-            if (!roomData) return null;
+            if (!roomData) return;
             
             const otherUserId = roomData.participant1_id === user.id ? roomData.participant2_id : roomData.participant1_id;
             const { data: userData } = await supabase.from('profiles').select('id, full_name, avatar_url, last_seen').eq('id', otherUserId).single();
@@ -44,48 +46,75 @@ const AdminIndividualChatPage = () => {
             setMessages(messagesData || []);
 
             await supabase.rpc('mark_messages_as_read', { p_room_id: roomId });
-            return otherUserId;
-        };
-        
-        fetchInitialData().then((otherUserId) => {
-            // Підписка на нові повідомлення
-            const messagesChannel = supabase.channel(`admin-chat-${roomId}`)
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, (payload) => {
-                    setMessages(current => [...current, payload.new]);
-                    supabase.rpc('mark_messages_as_read', { p_room_id: roomId });
-                }).subscribe();
+
+// Підписка на повідомлення
+            messagesChannel = supabase.channel(`admin-chat-${roomId}`)
+                .on('postgres_changes', { 
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'messages', 
+                    filter: `room_id=eq.${roomId}` 
+                }, (payload) => {
+                    console.log("🚀 ПРИЛЕТІЛО ПОВІДОМЛЕННЯ:", payload); // <-- Перевірка
+                    setMessages(current => {
+                        if (current.some(msg => msg.id === payload.new.id)) return current;
+                        return [...current, payload.new];
+                    });
+                    
+                    if (payload.new.sender_id !== user.id) {
+                        supabase.rpc('mark_messages_as_read', { p_room_id: roomId });
+                    }
+                }).subscribe((status) => {
+                    console.log("📡 Статус підписки на чат:", status); // <-- Перевірка
+                });
             
-            // ✅ ВИПРАВЛЕНО: Надійна підписка на онлайн-статус
-            const presenceChannel = supabase.channel('online-users');
+            // Підписка на онлайн
+            presenceChannel = supabase.channel('online-users');
             presenceChannel.on('presence', { event: 'sync' }, () => {
                 const presenceState = presenceChannel.presenceState();
-                if (otherUserId) {
-                    const isPresent = Object.values(presenceState).some(p => p[0]?.user_id === otherUserId);
-                    setIsOnline(isPresent);
-                }
+                const isPresent = Object.values(presenceState).some(p => p[0]?.user_id === otherUserId);
+                setIsOnline(isPresent);
             }).subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') await presenceChannel.track({ user_id: user.id });
             });
+        };
+        
+        setupChat();
 
-            return () => {
-                supabase.removeChannel(messagesChannel);
-                supabase.removeChannel(presenceChannel);
-            };
-        });
+        // ✅ ВИПРАВЛЕНО: Функція очищення повертається синхронно
+        return () => {
+            if (messagesChannel) supabase.removeChannel(messagesChannel);
+            if (presenceChannel) supabase.removeChannel(presenceChannel);
+        };
     }, [roomId, user.id]);
     
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    // ✅ ВИПРАВЛЕНО: Миттєве відображення відправленого тексту
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (newMessage.trim() === '') return;
-        await supabase.from('messages').insert({ room_id: roomId, sender_id: user.id, content: newMessage });
-        setNewMessage('');
+        
+        const tempMessage = newMessage;
+        setNewMessage(''); // Очищуємо інпут миттєво
+
+        const { data, error } = await supabase
+            .from('messages')
+            .insert({ room_id: roomId, sender_id: user.id, content: tempMessage })
+            .select() // Обов'язково отримуємо створений об'єкт назад
+            .single();
+
+        if (!error && data) {
+            setMessages(current => {
+                if (current.some(msg => msg.id === data.id)) return current;
+                return [...current, data];
+            });
+        }
     };
 
-    // ✨ ДОДАНО: Функція для завантаження зображення
+    // ✅ ВИПРАВЛЕНО: Миттєве відображення завантаженого зображення
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -100,17 +129,23 @@ const AdminIndividualChatPage = () => {
 
             const { data: urlData } = supabase.storage.from('chat_images').getPublicUrl(filePath);
             
-            await supabase.from('messages').insert({
+            const { data: msgData, error: msgError } = await supabase.from('messages').insert({
                 room_id: roomId,
                 sender_id: user.id,
                 image_url: urlData.publicUrl,
+            }).select().single();
+
+            if (msgError) throw msgError;
+
+            setMessages(current => {
+                if (current.some(msg => msg.id === msgData.id)) return current;
+                return [...current, msgData];
             });
 
         } catch (error) {
             alert("Помилка завантаження зображення: " + error.message);
         } finally {
             setIsUploading(false);
-            // Скидаємо значення інпуту, щоб можна було завантажити той самий файл знову
             if (fileInputRef.current) fileInputRef.current.value = "";
         }
     };
@@ -140,7 +175,6 @@ const AdminIndividualChatPage = () => {
                 {messages.map(msg => (
                     <div key={msg.id} style={{...styles.messageRow, justifyContent: msg.sender_id === user.id ? 'flex-end' : 'flex-start'}}>
                         <div style={{...styles.messageBubble, ...(msg.sender_id === user.id ? styles.myMessage : styles.theirMessage)}}>
-                            {/* ✨ ДОДАНО: Відображення або тексту, або зображення */}
                             {msg.content && <p style={styles.messageContent}>{msg.content}</p>}
                             {msg.image_url && (
                                 <a href={msg.image_url} target="_blank" rel="noopener noreferrer">
@@ -157,7 +191,6 @@ const AdminIndividualChatPage = () => {
 
             <footer style={styles.footer}>
                 <form onSubmit={handleSendMessage} style={styles.inputForm}>
-                    {/* ✨ ДОДАНО: Кнопка для завантаження файлу */}
                     <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
                     <button type="button" onClick={() => fileInputRef.current.click()} style={styles.attachButton} disabled={isUploading}>
                         <svg width="24" height="24" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
@@ -172,7 +205,6 @@ const AdminIndividualChatPage = () => {
     );
 };
 
-// --- СТИЛІ ---
 const styles = {
     pageContainer: { display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', backgroundColor: '#f3f4f6', fontFamily: 'system-ui, sans-serif' },
     header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', backgroundColor: 'white', borderBottom: '1px solid #e5e7eb', flexShrink: 0 },
@@ -190,12 +222,13 @@ const styles = {
     messageContent: { margin: 0, wordBreak: 'break-word', lineHeight: '1.5', padding: '4px 8px' },
     messageTime: { fontSize: '0.75rem', textAlign: 'right', marginTop: '4px', padding: '0 8px 4px 8px' },
     chatImage: { maxWidth: '100%', maxHeight: '250px', borderRadius: '15px', display: 'block' },
-    uploadingIndicator: { alignSelf: 'center', color: '#6b7280', fontStyle: 'italic' },
+    uploadingIndicator: { alignSelf: 'center', color: '#6b7280', fontStyle: 'italic', textAlign: 'center', marginBottom: '10px' },
     footer: { backgroundColor: 'white', borderTop: '1px solid #e5e7eb', flexShrink: 0 },
     inputForm: { display: 'flex', alignItems: 'center', padding: '12px 16px', gap: '12px' },
     textInput: { flexGrow: 1, padding: '12px 16px', borderRadius: '24px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none' },
     attachButton: { background: 'transparent', color: '#6b7280', border: 'none', borderRadius: '50%', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
     sendButton: { background: '#007bff', color: 'white', border: 'none', borderRadius: '50%', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
+    onlineIndicatorAvatar: { position: 'absolute', bottom: 0, right: 0, width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#28a745', border: '2px solid white' }
 };
 
 export default AdminIndividualChatPage;
